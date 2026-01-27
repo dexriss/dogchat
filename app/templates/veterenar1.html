@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        {% for profies in data.profies %}
+        <div class="kailen39">
+            
+           
+
+                <div class="soushin1">
+                    {% if profies.image %}
+                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + profies.login+'/'+profies.image, v=1)}}">
+                    {%else%}
+                        <img class="soushin2" src="/static/img/ava.png">
+                    {%endif%}
+                    
+            
+                </div>
+                
+                <div class="rusame">
+                    <h1 >{{profies.name}}</h1>
+                    <h2>{{profies.why_i}}</h2>
+                    <h2>{{profies.city}}</h2>
+                    <h3>{{profies.i_can}}</h3>                          
+                    </div>
+                    <div class="pr">
+                        <button class="hiyojun"  onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = profies.id)}}">Написать</button>
+                        
+                    <a class="akitoya">
+                        <img src="{{ url_for( 'static', filename='img/izbeanor.png', v=1)}}"/>
+                    </a>
+                </div>
+            
+        </div>
+        {%endfor%}
+    </div>
+{% endblock %}

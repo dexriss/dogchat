@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        <div class="swag">
+            <div class="ihatesobachat">
+                <h1 id = "a">Возможности</h1>
+                <h3 id="b" >"Добро пожаловать на наш сайт — место, где волонтеры помогают спасать и заботиться о собаках, а также предлагают различные услуги для животных и их хозяев. Вместе мы делаем жизнь наших питомцев лучше!"</h3>
+            </div>
+            <div class="persona1">
+                <a href="/volunteer" class="vibor">
+                    <img class="sayoma" src="static/img/vse-o-razvedenii-sobak (1).jpg">
+                    <p class="name">Поиск волонтеров</p>
+                </a>
+                <a href="/meetings" class="vibor">
+                    <img class="sayoma" src="static/img/scale_1200.jpeg">
+                    <p class="name">Знакомства</p>
+                </a>
+                <a href="/services" class="vibor">
+                    <img class="sayoma" src="static/img/golden-puppy-shoulder-hug-95hniawpgu383aqe.jpg">
+                    <p class="name">Услуги</p>
+                </a> 
+                <a href="/lenta" class="vibor">
+                    <img class="sayoma" src="static/img/азавак.jpg">
+                    <p class="name">Полезные статьи</p>
+                </a> 
+            </div>
+            
+            
+        </div>
+    </div>
+    <script>
+         window.onload = function(){
+            var auth_js = +"{{ data.s }}";
+            document.addEventListener('click',async e => {
+                console.log('do some there', auth_js, typeof auth_js,(auth_js),e)
+                if (e.target.nodeName === 'A' && !auth_js) {
+                 e.preventDefault()   
+                 var value = e.target.href.split('/').splice(-1,1)[0];
+                 try {
+                    const res = await fetch('/process', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({'value': value})
+                    });
+
+                    if (res.ok) {
+                        console.log('Send success!',);
+                    } else {
+                        throw new Error(`Send error, ${res.statusText}`);
+                    }
+                } catch (error) {
+                    console.error('Error', error);
+                }
+                    
+                    console.log('do some there', auth_js, typeof auth_js,value)
+                   window.location.href = '/login';
+                }
+            })
+         }
+    </script>
+{% endblock %}

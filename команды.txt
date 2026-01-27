@@ -1,0 +1,7 @@
+python -m venv venv
+    venv\Scripts\activate
+    deactivate (чтобы закрыть)
+
+pip install -r requirements.txt при изменении, на другом venv
+
+python -m pip freeze > requirements.txt - сохранить

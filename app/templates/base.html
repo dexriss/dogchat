@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width= initial-scale=1.0">
+    <title>{{data.title}}</title>
+   {# <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    #}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for( 'static', filename=data.file_css, v=1)}}" type="text/css"/>
+</head>
+<body>
+
+    <nav class="navi" id="nav">
+        <a class="shuake" href="/">
+            <img class="maoritsu" src="/static/img/logo.png"/>
+            <p class="text">Sobachat</p>
+        </a>
+        
+        <div class="links">
+            <a class="shumika"href="/volunteer">Волонтёры</a>
+            <a class="shumika" href="/meetings">Знакомства</a>
+            <a class="shumika" href="/services">Услуги</a>
+            <a class="shumika"href="/lenta">Лента</a>
+        </div>
+        <div class="profile">
+            
+            <a class="ava" href="#">
+                {#<img class="maoritsu" src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+data.userdata.image, v=1)}}"/>#}
+                <img class="maoritsu"src="/static/img/ava.png"/>
+            </a>
+        </div>
+        <div class="modalka" id="modal">
+            <a href="/profile">Профиль</a>
+            <a href="/logout">Выход</a>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+    
+    <button class="chat_button" onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = data.current_user_id)}}">
+        <img class="backdraft" src="/static/img/chat.png"/>
+        chat
+    </button>
+    <dialog style="padding: 0">
+        <div id="modal-box" style="padding: 1rem">
+          <div id="modal_content"></div>
+          {#<button id="close-modal-btn">Close</button>#}
+        </div>
+    </dialog>
+    
+<script>
+        let isModalOpen = false
+        // class Menu {
+        //     constructor(elem) {
+        //         elem.onclick = this.onClick.bind(this); // (*)
+        //     }
+        //     onClick(event) {
+        //         let action = event.target.dataset.whatever;
+        //         if (action) {
+        //             console.log('action',action)
+        //             showModalEdit(action)
+        //             modal.showModal()
+        //             isModalOpen = true
+        //         }
+        //     }
+        // }
+        // new Menu(menu);
+
+  function showModalEdit(event){
+    let action = event.target.dataset.whatever;
+            console.log('action',event,action)
+            if (action) {  
+        $.get(action, function (data) {
+            console.log(data);
+            $('#modal_content').html(data);
+        $('#submit').click(function (event) {
+            event.preventDefault();
+            console.log('submit',event,$('#ModalForm'));
+            $.post(action, data = $('#ModalForm').serialize(), function (
+                    data) {
+                    console.log('befor ok',data)    
+                    if (data.status == 'ok') {
+                        console.log('ok',data)
+                        $('#modal_content').html('');
+                        // isModalOpen = false;
+                        href = (data.href)?data.href:'/profile'
+                        window.location.href = href;
+                    } 
+                    else {
+                        $('#modal_content').html(data);
+                        // var obj = JSON.parse(data);
+                        // for (var key in obj) {
+                        //     if (obj.hasOwnProperty(key)) {
+                        //         var value = obj[key];
+                        //     }
+                        // }
+                        // $('.help-block').remove()
+                        // $('<p class="help-block">' + value + '</p>')
+                        //     .insertAfter('#' + key);
+                        // $('.form-group').addClass('has-error')
+                    }
+                })
+            });
+        })
+        modal.showModal()
+        isModalOpen = true 
+    }     
+  }
+        
+  function closeModal(){
+        modal.close()
+        isModalOpen = false
+  }
+  const modal = document.querySelector('dialog')
+  function showModalprof(){
+    const modal = document.getElementById('modal')
+    document.querySelector('.ava').addEventListener('click', () => {
+        
+        modal.Classlist.add('open')
+    })
+
+  }
+
+
+</script>
+</body>
+</html>

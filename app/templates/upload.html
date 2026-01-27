@@ -1,0 +1,61 @@
+<form id="uploadForm" method="POST" enctype="multipart/form-data">
+    
+    {{ form.hidden_tag() }}  <!-- Renders hidden fields, including CSRF token -->
+    
+    <div>
+        {{ form.file.label }}<br>
+        {{ form.file(id="fileInput") }}  <!-- File input with ID for JavaScript -->
+    </div>
+    <br>
+    <button type="button" id="uploadBtn" onclick="upload_file(event)" data-whatever="{{url_for('upload_file',type = type, id = id)}}">
+        Upload via AJAX
+    </button>  <!-- Custom AJAX trigger -->
+    <div id="status"></div>  <!-- For displaying success/error messages -->
+</form>
+
+<script>
+async function upload_file(event){
+    const fileInput = document.getElementById('fileInput');
+    const statusDiv = document.getElementById('status');
+    const file = fileInput.files[0];
+ 
+    if (!file) {
+        statusDiv.textContent = 'Please select a file first.';
+        statusDiv.style.color = 'red';
+        return;
+    }
+ 
+    // Step 1: Extract CSRF token from the hidden input
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+ 
+    // Step 2: Create FormData and append file + CSRF token
+    const formData = new FormData();
+    formData.append('file', file);  // Append the file
+    formData.append('csrf_token', csrfToken);  // Append CSRF token
+    const route = event.target.dataset.whatever;
+    console.log('route', route)
+    try {
+        // Step 3: Send AJAX request with fetch()
+        const response = await fetch(route, {
+            method: 'POST',
+            body: formData  // FormData includes file and CSRF token
+        });
+ 
+        const result = await response.json();
+ 
+        if (response.ok) {
+            statusDiv.textContent = `Success! File saved as: ${result.filename}`;
+            statusDiv.style.color = 'green';
+            window.location.href = '/profile'
+        } else {
+            statusDiv.textContent = `Error: ${result.error || 'Upload failed'}`;
+            statusDiv.style.color = 'red';
+        }
+    } catch (error) {
+        statusDiv.textContent = 'Network error. Please try again.';
+        statusDiv.style.color = 'red';
+    }
+};
+
+   // document.getElementById('uploadBtn').addEventListener('click', upload_file() )
+</script>

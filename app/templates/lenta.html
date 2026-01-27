@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        {%for posts in data.lenta%}
+        <div class="kailen">
+            
+            <div class="soushin">
+                {% if posts.image %}
+                <img src="{{ url_for('static', filename='uploads/' + posts.login+'/'+posts.image, v=1)}}"/> 
+                {%else%}
+                <img src="/static/img/ava.png">
+                {%endif%}
+            </div>
+            <a class="bulochki">
+                <h2>{{posts.title}}</h2>
+                <h1>{{posts.name}}</h1>   
+                <h3>{{posts.post}}</h3>
+                           
+            </a>
+         
+            
+        </div>
+        {%endfor%}
+    </div>
+{% endblock %}

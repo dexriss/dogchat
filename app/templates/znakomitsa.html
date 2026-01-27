@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="okno2">        
+        <div class="okno1" id="okno1">
+            {% for user in data.meeting %}
+            <div>
+                <div class="kailen2">
+                    <div class = "rusame1">
+                        {% if user.image %}
+                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + user.login+'/'+user.image, v=1)}}">
+                        {%else%}
+                        <img class="soushin2" src="static/img/ava.png">
+                        {%endif%}
+                        <h1>{{user.name}}</h1>
+                        <h2 class="wowaka">{{user.age}} , {{user.city}}</h2>
+                        <h3 class="wowaka">{{user.about}}</h3>
+                    </div>
+                    <div class="rusame2">
+                        {%for pet in user.pets%}
+                        <h1>{{pet.nickname}}</h1>
+                        <h2 class="wowaka">{{pet.breed}},{{pet.age}}, 
+                            {%if pet.neutered%}
+                            стерилизован(-а)
+                            {%else%}
+                            не стерилизован(-а)
+                            {%endif%}
+                        </h2>
+                        <h3 class="wowaka">{{pet.about}}</h3>
+                        {%endfor%}                
+                    </div>
+                    <div class="pr1">
+                         
+                        <img src="static/img/like.png" onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = user.id)}}"/>
+                       
+                        <img src="static/img/unlike.png"/>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+      
+        </div>
+    </div>
+    <script>
+        window.onload = function(){
+            const okno1 = document.getElementById("okno1")
+            document.querySelectorAll(".pr1").forEach((el,i) => el.addEventListener("click",function(){
+                okno1.style.marginLeft = (-100*(i+1))+"vw"
+            }))
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        <div class="swag">
+            <h1 class="nevozmozhno">Наши специалисты</h1>
+            <div class="persona">
+                <a href="services/veterenar" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/6758ad96d7c6f578075113.jpg', v=1)}}">
+                    <p class="name">Ветеринары</p>
+                </a>
+                <a href="#" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/depositphotos_768735950-stock-photo-pretty-young-woman-treat-training.jpg', v=1)}}">
+                    <p class="name">Кинологи</p>
+                </a>
+                <a href="#" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/blg-amazonian-trek-1024x682.jpg', v=1)}}">
+                    <p class="name">Грумеры</p>
+                </a>
+                <a href="#" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/азавак.jpg', v=1)}}">
+                    <p class="name">Организаторы выставок</p>
+                </a>
+                <a href="#" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/400101700389_368776.jpg', v=1)}}">
+                    <p class="name">Зоопсихолог</p>
+                </a>
+                <a href="#" class="vibor">
+                    <img class="sayoma" src="{{ url_for( 'static', filename='img/images.jpeg', v=1)}}">
+                    <p class="name">Канистерапевт</p>
+                </a> 
+        </div>
+    </div>
+{% endblock %}

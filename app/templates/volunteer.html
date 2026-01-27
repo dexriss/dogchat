@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        {% for volonteer in data.volonteers %}
+            {% if volonteer.id != data.current_user_id %}
+            <div class="kailen1">
+                
+            
+                    <div class="soushin1">
+                        {% if volonteer.image %}
+                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + volonteer.login+'/'+volonteer.image, v=1)}}">
+                        {%else%}
+                        <img class="soushin2" src="/static/img/ava.png">
+                        {%endif%}
+                
+                    </div>
+                    
+                    <div class="rusame">
+                        <h1 >{{volonteer.name}}</h1>
+                        <h2>{{volonteer.city}}</h2>
+                        <h3>{{volonteer.why_i}}</h3>
+                        <h3>{{volonteer.i_can}}</h3>         
+                        </div>
+                        <div class="pr">
+                            <button class="hiyojun"  onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = volonteer.id)}}">Написать</button>
+                          
+                        <a class="akitoya">
+                            <img src="{{ url_for( 'static', filename='img/izbeanor.png', v=1)}}"/>
+                        </a>
+                    </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endblock %}

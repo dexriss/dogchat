@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="vse">
+        <div id="user_pofile" class="rightwort">
+            <div class="tools ">
+                <button  class="fixed_button " onclick="showModalEdit(event)" data-whatever="{{url_for('editItem', id = data.userdata.id , type = 'user' )}}">
+                    <img src=/static/img/like.png>
+                </button>
+                {#<button id="red" class="fixed_button " data-whatever="{{url_for('editItem', id = data.userdata.id , type = 'user' )}}">
+                    <img src=/static/img/like.png>
+                </button>#}
+            </div>    
+           {#  <img class="avatar" src="{{ url_for( 'static', filename='img/tll2.jpg', v=1)}}"/> 
+             картинка - редактирование#} 
+            {%if data.userdata.image%}
+            <img  class="avatar" src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+data.userdata.image, v=1)}}" 
+                onclick="showModalEdit(event)" 
+                data-whatever="{{url_for('upload_file', type = 'user', id = data.userdata.id  )}}"/>  
+            {%else%}
+                <img class="avatar" src="/static/img/ava.png"
+                onclick="showModalEdit(event)" 
+                data-whatever="{{url_for('upload_file', type = 'user', id = data.userdata.id  )}}"/>    
+            {%endif%}               
+            <div class="name">
+                <h2 class="read_item">{{data.userdata.name}}</h2>
+            </div>
+            <div class="info">
+                <div class="souyo">
+                    <h3 class="title1">Город:</h3> 
+                    <h3 class="title2 read_item">{{data.userdata.city}}</h3>
+                </div>
+                <div class="souyo">
+                    <h3 class="title1">Дата рождения:</h3>
+                   
+                    {%if data.userdata.birth%}
+                    {% set date_str = data.userdata.birth.split('-') %}
+                    <h3 class="title2 read_item">{{date_str[2]}}-{{date_str[1]}}-{{date_str[0]}}</h3>
+                    {%else%}
+                    <h3 class = "title2 read_item">?</h3>
+                    {%endif%}
+                    
+                    
+                </div>
+                <div class="souyo">
+                    <h3 class="title1 ">О себе:</h3> 
+                    <h3 class="read_item">{{data.userdata.about}}</h3>    
+                </div>
+            </div>   
+        </div>
+        <div id="pet_pofile" class="rightwort v1">
+            <div id="tab_link" class="vertical_tabs tab_link">
+                <div class="tab_v v1" data-tabv="v1" onclick="change_tab_h('v1')">
+                    <h3>Питомец</h3>
+                </div>
+                <div class="tab_v v2" data-tabv="v2" onclick="change_tab_h('v2')">
+                    <h3>Волонтёр</h3>
+                </div>
+                <div class="tab_v v3" data-tabv="v3" onclick="change_tab_h('v3')">
+                    <h3>Услуга</h3>
+                </div>                
+                <div class="tab_v v4" data-tabv="v4" onclick="change_tab_h('v4')">
+                    <h3>Пост</h3>
+                </div>
+            </div>
+            <div class="tab_content">
+                <div  class="tab_content_tab ">
+                    <div class="v1 h1" id="pets">
+                        <div id='tab_h' class="tab_h ">
+                            <div id="tab_links_h">
+                                {% for pet in data.userdata.dogs %}
+                                
+                                <div class="h{{loop.index}} tab_link_h" data-tabv="h{{loop.index}}" data-tab="pets" onclick="change_tab_v('pets','{{loop.index}}')">
+                                    <h3>{{loop.index}}</h3>
+                                </div>
+                                {% endfor %}
+                                <div class="h_last tab_link_h" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'pets' )}}">                                    
+                                    <svg  width="46" height="46" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'pets' )}}">
+                                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="tab_content_tab">
+                                {% for pet in data.userdata.dogs %}
+                                <div class="h{{loop.index}} tab_v">
+                                    <div class="chtot">
+                                        <div class="motka">
+                                            {% if pet.image %}
+                                            <img class="modalimg"  src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+pet.image, v=1)}}" 
+                                            onclick="showModalEdit(event)" 
+                                            data-whatever="{{url_for('upload_file', type = 'pets', id = pet.id  )}}"/>
+                                            {% else %}
+                                            <img class="modalimg"  src="{{ url_for('static', filename='img/ava.png', v=1)}}" 
+                                            onclick="showModalEdit(event)" 
+                                            data-whatever="{{url_for('upload_file', type = 'pets', id = pet.id  )}}"/>
+                                            {% endif %}
+                                            <h2>{{pet.nikname}}</h2>
+                                            <div class="souyo">
+                                                <h3 class="title1">Порода:</h3>
+                                                <h3>{{pet.breed}}</h3>
+                                            </div>
+                                            <div class="souyo">
+                                                <h3 class="title1">Возраст:</h3>
+                                                <h3 class="title2">{{pet.age}}</h3>
+                                            </div>
+                                            <div class="souyo">
+                                                <h3 class="title1">Пол</h3>
+                                                <h3 class="title2">{{pet.gender}}</h3>
+                                            </div>
+                                            
+                                            <div class="souyo">
+                                                
+                                                <h3 class="title2">
+                                                    {%if pet.neutered%}
+                                                    стерилизован(-а)
+                                                    {%else%}
+                                                    не стерилизован(-а)
+                                                    {%endif%}
+                                                </h3>
+                                            </div>
+                                            <div class="souyo">
+                                                <h3 class="title1">Характер:</h3>
+                                                <h3 class="title2">{{pet.about}}</h3>
+                                            </div>
+                                                <button onclick="showModalEdit(event)" class=" fixed_button" data-whatever="{{url_for('editItem', id = pet.id , type = 'pets' )}}">
+                                                    <img src=/static/img/like.png>
+                                                </button>{##}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>                            
+                        </div>
+                    </div><!--end 1st vertical tab-->
+                    <div class="v2" >
+                        {% if data.userdata.volonteers.keys() | length < 1 %}
+                        <button onclick="showModalEdit(event)" onclick="showModalEdit(event)" class=" " data-whatever="{{url_for('newItem', type = 'volonteer' )}}">
+                            добавить
+                        </button> 
+                        {% else %}                       
+                        <button onclick="showModalEdit(event)" class=" " data-whatever="{{url_for('editItem', id = data.userdata.volonteers.id , type = 'volonteer' )}}">
+                            Редактировать
+                        </button>
+                        {% endif %}
+                        
+                            <div>
+                                <p>
+                                    <h3 class="title1">Почему я:</h3>
+                                    <h3>{{data.userdata.volonteers.why_i}}</h3>
+                                </p>
+                                <div class="soyuo">
+                                    <h3 class="title1">Что я могу:</h3>
+                                    <h3>{{data.userdata.volonteers.i_can}}</h3>
+                                </div>
+                            </div>{% if data.userdata.volonteers.keys() | length > 0 %}
+                        {% endif %}
+                    </div>
+                    <div class="v3 h1" id="profies">
+                        <div  class="tab_h">
+
+                            <div id="tab_links_h">
+                                {% for profies in data.userdata.profies %}
+                                <div class="h{{loop.index}} tab_link_h" data-tabv="h{{loop.index}}" onclick="change_tab_v('profies','{{loop.index}}')"><h3>{{loop.index}}</h3></div>
+                                {% endfor %}
+                                <div class="h_last tab_link_h" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'profies' )}}">                                    
+                                    <svg  width="46" height="46" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'profies' )}}">
+                                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="tab_content_tab">
+                                {% for profies in data.userdata.profies %}
+                                <div class="h{{loop.index}} tab_v">
+                                    
+                                    {% if profies.image %}
+                                    <img class="modalimg"  src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+profies.image, v=1)}}" 
+                                    onclick="showModalEdit(event)" 
+                                    data-whatever="{{url_for('upload_file', type = 'profies', id = profies.id  )}}"/>
+                                    {% else %}
+                                    <img class="modalimg"  src="{{ url_for('static', filename='img/ava.png', v=1)}}" 
+                                    onclick="showModalEdit(event)" 
+                                    data-whatever="{{url_for('upload_file', type = 'profies', id = profies.id  )}}"/>
+                                    {% endif %}
+                                    <div class="soyuo">
+                                        <h3 class="title1">Название:</h3>
+                                        <h3>{{profies.why_i}}</h3>
+                                    </div>
+                                    <div class="soyuo">
+                                        <h3 class="title1">Описание:</h3>
+                                        <h3 class="title39">{{profies.i_can}}</h3>
+                                    </div>
+                                        <button onclick="showModalEdit(event)" class=" fixed_button" data-whatever="{{url_for('editItem', id = profies.id , type = 'profies' )}}">
+                                            <img src=/static/img/like.png>
+                                        </button>{##}
+                                </div>
+                                {% endfor %}
+                            </div>                            
+                        </div>
+
+                            
+                    </div>
+                    <div class="v4 h1" id="posts">
+                        <div class="tab_h">                                
+                            <div id="tab_links_h">
+                                {% for posts in data.userdata.posts %}
+                                <div class="h{{loop.index}} tab_link_h" data-tabv="h{{loop.index}}" onclick="change_tab_v('posts','{{loop.index}}')"><h3>{{loop.index}}</h3></div>
+                                {% endfor %}
+                                <div class="h_last tab_link_h" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'posts' )}}">                                    
+                                    <svg  width="46" height="46" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" onclick="showModalEdit(event)" data-whatever="{{url_for('newItem', type = 'posts' )}}">
+                                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="tab_content_tab">
+                                {% for posts in data.userdata.posts %}
+                                
+                                        
+                                <div class="h{{loop.index}} tab_v">
+                                    <div class="chtot">
+                                        <div class="motka">
+
+                                            <h3>{{posts.date}}</h3>
+                                            {% if posts.image %}
+                                            <img class="modalimg" src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+posts.image, v=1)}}" 
+                                            onclick="showModalEdit(event)" 
+                                            data-whatever="{{url_for('upload_file', type = 'posts', id = posts.id  )}}"/>
+                                            {% else %}
+                                            <img class="modalimg" src="{{ url_for('static', filename='img/ava.png', v=1)}}" 
+                                            onclick="showModalEdit(event)" 
+                                            data-whatever="{{url_for('upload_file', type = 'posts', id = posts.id  )}}"/>
+                                            {% endif %}
+                                            <div class="soyuo">
+                                                <h2>{{posts.title}}</h2>
+                                            </div>
+                                            <div class="soyuo">
+                                                <h3 class="title39">{{posts.post}}</h3>
+                                            </div>
+                                                <button onclick="showModalEdit(event)" class=" fixed_button" data-whatever="{{url_for('editItem', id = posts.id , type = 'posts' )}}">
+                                                    <img src=/static/img/like.png>
+                                                </button>{##}
+                                        </div>
+                                    </div>
+                                </div>
+                                    
+                                {% endfor %}
+                            </div>
+                            
+                        </div>
+                    </div>               
+                </div>
+
+            </div>
+            
+                   
+                
+        </div>
+    </div>  
+
+
+    
+    <script>
+        function change_tab_h(action){
+            const pet_profile = document.getElementById('pet_pofile')
+            let v_arr = ['v1','v2','v3','v4']
+            v_arr.forEach(v => {
+                pet_profile.classList.remove(v)
+            });
+            pet_profile.classList.add(action)
+        }
+
+        function change_tab_v(tab,i){
+            const tab_c = document.getElementById(tab)
+            let v_arr = ['h1','h2','h3','h4']
+            v_arr.forEach(v => {
+                tab_c.classList.remove(v)
+            });
+            let class_add = 'h'+i
+            tab_c.classList.add(class_add)
+        }
+    </script>
+
+{% endblock %}

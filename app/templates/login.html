@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for( 'static', filename='fruk.css', v=1)}}" type="text/css">
+</head>
+<body class="kolbasa">
+    <div class="vse1">
+        <div class="login">
+            <div class="title">
+                <img src="{{ url_for( 'static', filename='img/logo.png', v=1)}}"/>
+                <h2>Вход</h2>
+            </div>
+            <form method="POST" class="dva">
+                <div>
+                    <input type="text"
+                    class="pole"
+                    id="login"
+                    name="login"
+                    placeholder="Логин">
+                    <input
+                    class="pole"
+                    id="password"
+                    name="password"
+                    placeholder="Пароль">
+                </div>
+                <button type="submit" class="knopka1" >Вход</button>
+            </form>
+            <div class="knopki">
+                <div class="knopochki">
+                    <a href="l.html" class="knopka">Забыли пароль</a>
+                    <a href="/signup" class="knopka">Регистрация</a>
+    
+                </div>  
+                
+            </div>
+            
+        </div>
+        
+    </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<div class="header_chat">
+    <button type="button" onclick="closeModal()" id="frutkeik" class="btn btn-default">
+        <img class="kaoshin" src="/static/img/photo_2025-10-06_21-48-37(1).png"/>
+        ш
+    </button></button>
+</div>
+
+<div id="chats" class=" h1">
+    <div class="chat_tabs tab_links_h">
+        <div class="navi">
+        {% for chat_id in chat %}
+        <div class="h{{loop.index}} tab_link_h" onclick="change_tab_v('chats','{{loop.index}}','{{chat_id}}')">
+            <p class="hitoshizuku2">{{chat_id}}</p>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="tab_content_tab">
+        {% for chat_id in chat %}
+            <div id="chat{{chat_id}}" class="h{{loop.index}} tab_v senbonzakura">
+               
+                    {% for mess in chat[chat_id] %}
+
+                    {% if mess.id_from == current_user %}
+                    {% set class_ch = 'my_message' %}
+                    {% else %}
+                    {% set class_ch = 'op_message' %}
+                    {% endif %}
+                    <p class="cirno {{class_ch}}">
+                        {{mess.id_from}}:&nbsp;{{mess.message}}
+                    </p>
+                    {% endfor %}       
+                         
+            </div>
+
+        {% endfor%}        
+    </div>    
+
+</div>
+
+<div id="chat_form">
+    {% if chat|length %}
+    {{current_chat}}
+    <textarea placeholder="Введите сообщение..." id='message' rows="2" style="width:30vw"></textarea>
+    <button class="frutkeik" id="button_send_chat" onclick="send_message()" data-whatever="2" >
+        
+        ОТПРАВИТЬ
+    </button>
+    {% else %}
+     <h3> У Вас нет активных чатов</h3>
+    {% endif %}
+</div>
+
+<script>
+
+    function change_tab_v(tab,i,chat_id){
+        const tab_c = document.getElementById(tab)
+        console.log('ch',tab_c,i,chat_id)
+        let v_arr = ['h1','h2','h3','h4']
+        v_arr.forEach(v => {
+            tab_c.classList.remove(v)
+        });
+        let class_add = 'h'+i
+        tab_c.classList.add(class_add)
+        document.getElementById("button_send_chat").setAttribute('data-whatever',chat_id)
+    }
+
+   async function send_message(){
+        const message = document.getElementById('message')
+        console.log('send_message',message.value)
+
+            const route = '/send_message/' + event.target.dataset.whatever;
+            const chat_id = 'chat'+event.target.dataset.whatever
+            console.log('route', route)
+            try {
+                // Step 3: Send AJAX request with fetch()
+                const response = await fetch(route, {
+                    method: 'POST',
+                    body: JSON.stringify({"message":message.value})  // FormData includes file and CSRF token
+                });
+        
+                const result = await response.json();
+        
+                if (response.ok) {
+                   console.log('response.ok',result,chat_id)
+                   document.getElementById(chat_id).insertAdjacentHTML('beforeend', '<p class="cirno">'+result.id_from +': ' +result.message+'</p>');
+                   message.value = ''
+                } else {
+                    console.log( `Error: ${result.error || 'Upload failed'}`);
+                    
+                }
+            } catch (error) {
+                console.log('Network error. Please try again.');
+            }
+    }
+
+    if (document.readyState == 'complete') {
+        console.log('window.onload','{{chat_num}}','{{current_chat}}')
+        change_tab_v('chats','{{chat_num}}','{{current_chat}}')
+    }
+        
+      
+    
+</script>

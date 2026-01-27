@@ -1,0 +1,108 @@
+<form id="ModalForm" action="{{ url_for('editItem', id = edit_val.id , type = type)}}" method="post">
+  <div class="form-group">
+    {% if type == 'user' %}
+      <div class="group-vod">
+        <label for="name">Имя:</label>
+        <input class="vod" type="text" maxlength="100" name="name" placeholder="имя" value="{{edit_val.name or ''}}">
+      </div>
+
+      <div class="group-vod">
+        <label for="phone">Телефон:</label>
+        <input class="vod" maxlength="100" name="phone" placeholder="телефон" value="{{edit_val.phone or ''}}">
+      </div>
+
+      <div class="group-vod">
+        <label for="city">Город:</label>
+        <input class="vod" maxlength="100" name="city" placeholder="город" value="{{edit_val.city or ''}}">
+      </div>
+
+      <div class="group-vod">
+          <label for="birth">Дата рождения:</label>
+          <input class="vod" maxlength="100" type="date" name="birth" placeholder="Дата рождения" value="{{edit_val.birth or ''}}">
+      </div>
+
+      <div class="group-vod">
+          <label for="about">О себе:</label>
+          <textarea  rows="3" name="about" placeholder="О себе" class = "area"  >{{edit_val.about or ''}}</textarea>
+      </div>
+
+
+
+
+
+      
+
+       
+    {% endif %}
+
+    {% if type == 'pets'%}
+      <div class="group-vod">
+        <label for="nikname">Кличка:</label>
+        <input class="vod" type="text" maxlength="100" name="nikname" placeholder="Кличка" value="{{edit_val.nikname or ''}}">
+      </div>
+      <div class="group-vod">
+        <label for="breed">порода:</label>
+        <input class="vod" maxlength="100" name="breed" placeholder="порода" value="{{edit_val.breed or ''}}">
+      </div>
+      <div class="group-vod">
+        <label for="gender">пол:</label>
+        <input class="vod" maxlength="100" name="gender" placeholder="пол" value="{{edit_val.gender or ''}}">
+      </div>
+      <div class="galochka">
+        <label for="neutered">стирилизован:</label>
+        <input id="neutered_bool" type="checkbox"  placeholder="стирилизован" 
+        {% if edit_val.neutered == 1  %} checked {% endif %} >
+        <input id="neutered_hidden" hidden name="neutered" value="{{edit_val.neutered or 'False'}}">
+      </div>
+      <div class="group-vod">
+        <label for="age">возраст:</label>
+        <input class="vod" maxlength="100"  name="age" placeholder="возраст" value="{{edit_val.age or ''}}">
+      </div>
+      <div class="group-vod">
+        <label for="about">характер:</label>
+        <textarea class="vod" rows="3" name="about" placeholder="характер" value="" >{{edit_val.about or ''}}</textarea>
+      </div>
+    {% endif %}
+    {% if type == 'volonteer'%}
+      <div class="group-vod">
+        <label for="why_i">Почему я:</label>
+        <textarea class="vod" rows="3" name="why_i" placeholder="Почему я" value="" >{{edit_val.why_i or ''}}</textarea>
+      </div>
+      <div class="group-vod">
+        <label for="i_can">Что я могу:</label>
+        <textarea class="vod" rows="3" name="i_can" placeholder="Что я могу" value="" >{{edit_val.i_can or ''}}</textarea>
+      </div>
+    {% endif %}
+    {% if type == 'profies'%}
+    <div class="group-vod">
+      <label for="why_i">Название:</label>
+      <textarea class="vod" rows="3" name="why_i" placeholder="Название:" value="" >{{edit_val.why_i or ''}}</textarea>
+    </div>
+    <div class="group-vod">
+      <label for="i_can">Описание</label>
+      <textarea class="vod" rows="3" name="i_can" placeholder="Описание" value="" >{{edit_val.i_can or ''}}</textarea>
+    </div>
+    {% endif %}
+    {% if type == 'posts'%}
+    <div class="group-vod">
+      <label for="title">Заголовок:</label>
+      <textarea class="vod" rows="3" name="title" placeholder="Заголовок" value="" >{{edit_val.title or ''}}</textarea>
+    </div>
+    <div class="group-vod">
+      <label for="post">Текст:</label>
+      <textarea class="vod" rows="3" name="post" placeholder="Заголовок" value="" >{{edit_val.post or ''}}</textarea>
+    </div>
+    {% endif %}
+  </div>
+  <div class="modal-footer">
+        <button type="button" onclick="closeModal()" class="btn btn-default">Отмена</button>
+        <button id="submit" type="submit" class="btn btn-success">Сохранить</button>
+  </div>
+</form>
+<script>
+    // const neutered_bool = document.getElementById('neutered_bool')
+    $('#neutered_bool').bind('change',(e)=>{
+       (e.target.checked)?$('#neutered_hidden').val('True'):$('#neutered_hidden').val('False')})
+    
+</script>
+

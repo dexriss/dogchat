@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for( 'static', filename='fruk.css', v=1)}}" type="text/css">
+</head>
+<body class="kolbasa">
+    <div class="vse1">
+        <div class="login">
+            <div class="title">
+                <img src="{{ url_for( 'static', filename='img/logo.png', v=1)}}"/>
+                <h2>Регистрация</h2>
+            </div>
+        <form method="POST">
+            <div class="dva">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.username.label }}<br>
+                    {{ form.username(size=32) }}<br>
+                    {% for error in form.username.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+               {# <p>
+                    {{ form.email.label }}<br>
+                    {{ form.email(size=64) }}<br>
+                    {% for error in form.email.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>#}
+                <p>
+                    {{ form.password.label }}<br>
+                    {{ form.password(size=32) }}<br>
+                    {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.password2.label }}<br>
+                    {{ form.password2(size=32) }}<br>
+                    {% for error in form.password2.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>{{ form.submit() }}</p>
+               {# <input 
+                    class="pole"
+                    id="login"
+                    name="login"
+                    placeholder="Электронная почта">
+                <input
+                    class="pole"
+                    id="phone"
+                    name="phone"
+                    placeholder="Номер телефона">
+                <input
+                    class="pole"
+                    id="name"
+                    name="name"
+                    placeholder="Имя для всех">
+                <input
+                    class="pole"
+                    id="passwor"
+                    name="password"
+                    placeholder="Пароль">
+               <!--  <div>
+                    <input
+                    class="pole1"
+                    id="name"
+                    name="Код"
+                    placeholder="Код подтверждения">
+                    <button id = "phoenix">
+                        отправить код
+                    </button>
+                </div> -->
+            </div>
+
+            <div class="knopki">
+                <button type="submit" class="knopka1">Далее</button>
+            </div>#}
+        </form>    
+                <div class="knopochki">
+                    <a href="/login" class="knopka">Уже есть аккаунт?</a>
+    
+                </div>  
+                
+            
+            
+        </div>
+        
+    </div>
+ <!--    <div class="vse">
+        <div class="login">
+            <div class="title">
+                <img src="{{ url_for( 'static', filename='img/logo.png', v=1)}}"/>
+                <h2>Регистрация</h2>
+            </div>
+            <div class="dva">
+                <input 
+                class="pole"
+                id="name"
+                name="Почта"
+                placeholder="Электронная почта">
+                <input
+                class="pole"
+                id="name"
+                name="Номер"
+                placeholder="Номер телефона">
+                <input
+                class="pole"
+                id="name"
+                name="Пароль"
+                placeholder="Пароль">
+                <div>
+                    <input
+                    class="pole1"
+                    id="name"
+                    name="Код"
+                    placeholder="Код подтверждения">
+                    <button id = "phoenix">
+                        отправить код
+                    </button>
+                </div>
+            </div>
+
+            <div class="knopki">
+                <div class="knopochki">
+                    <a href="/login" class="knopka">Уже есть аккаунт?</a>
+    
+                </div>  
+                <a href="#" class="knopka1">Далее</a>
+            </div>
+            
+        </div>
+        
+    </div>  -->
+    <script>
+        window.onload = function(){
+            const phoenix = document.getElementById("phoenix")
+            addEventListener("click",function(){
+               
+               this.classList.add("active");
+               setTimeout(()=>
+                    phoenix.removeClass("active"),3000)
+
+            })
+        }
+    </script>
+</body>
+</html>
