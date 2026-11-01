@@ -1,35 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="vse">
-        {% for volonteer in data.volonteers %}
-            {% if volonteer.id != data.current_user_id %}
-            <div class="kailen1">
-                
-            
-                    <div class="soushin1">
-                        {% if volonteer.image %}
-                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + volonteer.login+'/'+volonteer.image, v=1)}}">
-                        {%else%}
-                        <img class="soushin2" src="/static/img/ava.png">
-                        {%endif%}
-                
-                    </div>
-                    
-                    <div class="rusame">
-                        <h1 >{{volonteer.name}}</h1>
-                        <h2>{{volonteer.city}}</h2>
-                        <h3>{{volonteer.why_i}}</h3>
-                        <h3>{{volonteer.i_can}}</h3>         
-                        </div>
-                        <div class="pr">
-                            <button class="hiyojun"  onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = volonteer.id)}}">Написать</button>
-                          
-                        <a class="akitoya">
-                            <img src="{{ url_for( 'static', filename='img/izbeanor.png', v=1)}}"/>
-                        </a>
-                    </div>
-            </div>
-            {% endif %}
-        {% endfor %}
+<div class="ls-page">
+    {# себя в списке не показываем #}
+    {% set others = data.volonteers | rejectattr('id', 'equalto', data.current_user_id) | list %}
+
+    {% if not others %}
+    <div class="ls-empty">
+        <p>Волонтёров пока нет.</p>
     </div>
-    {% endblock %}
+    {% endif %}
+
+    {% for volonteer in others %}
+    {% set vol_img = url_for('static', filename='uploads/' + volonteer.login + '/' + volonteer.image, v=1) if volonteer.image else '/static/img/ava.png' %}
+    <article class="ls-card">
+        <div class="ls-media">
+            <img class="ls-img" src="{{ vol_img }}" alt="{{ volonteer.name }}">
+        </div>
+        <div class="ls-body">
+            <header class="ls-head">
+                <h2 class="ls-name">{{ volonteer.name }}</h2>
+                {% if volonteer.city %}<span class="ls-city">{{ volonteer.city }}</span>{% endif %}
+            </header>
+
+            <div class="ls-section">
+                <span class="ls-label">Почему я</span>
+                <p class="ls-text">{{ volonteer.why_i }}</p>
+            </div>
+            <div class="ls-section">
+                <span class="ls-label">Что я могу</span>
+                <p class="ls-text">{{ volonteer.i_can }}</p>
+            </div>
+
+            <footer class="ls-foot">
+                <button type="button" class="ls-btn" onclick="showModalEdit(event)"
+                        data-whatever="{{ url_for('get_messages', id_chat = volonteer.id) }}">Написать</button>
+                <img class="ls-mascot" src="{{ url_for('static', filename='img/izbeanor.png', v=1) }}" alt="">
+            </footer>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}

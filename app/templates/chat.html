@@ -1,104 +1,176 @@
-<div class="header_chat">
-    <button type="button" onclick="closeModal()" id="frutkeik" class="btn btn-default">
-        <img class="kaoshin" src="/static/img/photo_2025-10-06_21-48-37(1).png"/>
-        ш
-    </button></button>
-</div>
+<div id="ch-root" class="ch-root{% if not chat|length %} is-empty{% endif %}">
 
-<div id="chats" class=" h1">
-    <div class="chat_tabs tab_links_h">
-        <div class="navi">
-        {% for chat_id in chat %}
-        <div class="h{{loop.index}} tab_link_h" onclick="change_tab_v('chats','{{loop.index}}','{{chat_id}}')">
-            <p class="hitoshizuku2">{{chat_id}}</p>
+    <div class="ch-head">
+        <h2 class="ch-title">Чат</h2>
+        <button type="button" class="ch-close" onclick="closeModal()" aria-label="Закрыть">&times;</button>
+    </div>
+
+    {% if chat|length %}
+
+    <div id="chats">
+        <div class="ch-tabs">
+            {% for chat_id in chat %}
+            <button type="button" class="ch-tab{% if loop.first %} is-active{% endif %}"
+                    data-index="{{ loop.index }}" data-chat="{{ chat_id }}"
+                    onclick="chatOpen('{{ loop.index }}')">
+                <span class="ch-tab-ava">{{ chat_id|string|first|upper }}</span>
+                <span class="ch-tab-name">{{ chat_id }}</span>
+            </button>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        <div class="ch-panels">
+            {% for chat_id in chat %}
+            <div id="chat{{ chat_id }}" class="ch-panel{% if loop.first %} is-active{% endif %}" data-index="{{ loop.index }}">
+                {% if not chat[chat_id] %}
+                <p class="ch-hint">Сообщений пока нет. Напишите первым!</p>
+                {% endif %}
+                {% for mess in chat[chat_id] %}
+                {% set mine = (mess.id_from == current_user) %}
+                <div class="ch-msg {% if mine %}ch-msg-me{% else %}ch-msg-op{% endif %}">
+                    <span class="ch-who">{% if mine %}Вы{% else %}{{ mess.id_from }}{% endif %}</span>
+                    <p class="ch-bubble">{{ mess.message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
         </div>
     </div>
-    <div class="tab_content_tab">
-        {% for chat_id in chat %}
-            <div id="chat{{chat_id}}" class="h{{loop.index}} tab_v senbonzakura">
-               
-                    {% for mess in chat[chat_id] %}
 
-                    {% if mess.id_from == current_user %}
-                    {% set class_ch = 'my_message' %}
-                    {% else %}
-                    {% set class_ch = 'op_message' %}
-                    {% endif %}
-                    <p class="cirno {{class_ch}}">
-                        {{mess.id_from}}:&nbsp;{{mess.message}}
-                    </p>
-                    {% endfor %}       
-                         
-            </div>
+    <div id="chat_form" class="ch-composer">
+        <p class="ch-error" id="ch-error" hidden></p>
+        <div class="ch-row">
+            <textarea class="ch-input" id="message" rows="1" placeholder="Введите сообщение..."></textarea>
+            <button type="button" class="ch-send" id="button_send_chat" data-chat="" onclick="chatSend()">Отправить</button>
+        </div>
+    </div>
 
-        {% endfor%}        
-    </div>    
-
-</div>
-
-<div id="chat_form">
-    {% if chat|length %}
-    {{current_chat}}
-    <textarea placeholder="Введите сообщение..." id='message' rows="2" style="width:30vw"></textarea>
-    <button class="frutkeik" id="button_send_chat" onclick="send_message()" data-whatever="2" >
-        
-        ОТПРАВИТЬ
-    </button>
     {% else %}
-     <h3> У Вас нет активных чатов</h3>
+
+    <div class="ch-empty">
+        <p>У Вас нет активных чатов</p>
+    </div>
+
     {% endif %}
 </div>
 
 <script>
+    // Названия функций уникальны (chat*), чтобы не затирать change_tab_v на других страницах
 
-    function change_tab_v(tab,i,chat_id){
-        const tab_c = document.getElementById(tab)
-        console.log('ch',tab_c,i,chat_id)
-        let v_arr = ['h1','h2','h3','h4']
-        v_arr.forEach(v => {
-            tab_c.classList.remove(v)
+    // переключение собеседника
+    function chatOpen(index){
+        var chatId = '';
+        var found = false;
+        document.querySelectorAll('#chats .ch-tab').forEach(function(tab){
+            var on = tab.dataset.index === String(index);
+            tab.classList.toggle('is-active', on);
+            if (on){ found = true; chatId = tab.dataset.chat; }
         });
-        let class_add = 'h'+i
-        tab_c.classList.add(class_add)
-        document.getElementById("button_send_chat").setAttribute('data-whatever',chat_id)
+        if (!found) return;
+        document.querySelectorAll('#chats .ch-panel').forEach(function(panel){
+            var on = panel.dataset.index === String(index);
+            panel.classList.toggle('is-active', on);
+            if (on) panel.scrollTop = panel.scrollHeight;
+        });
+        var btn = document.getElementById('button_send_chat');
+        if (btn) btn.dataset.chat = chatId;
     }
 
-   async function send_message(){
-        const message = document.getElementById('message')
-        console.log('send_message',message.value)
+    function chatShowError(text){
+        var box = document.getElementById('ch-error');
+        if (!box) return;
+        box.textContent = text;
+        box.hidden = !text;
+    }
 
-            const route = '/send_message/' + event.target.dataset.whatever;
-            const chat_id = 'chat'+event.target.dataset.whatever
-            console.log('route', route)
-            try {
-                // Step 3: Send AJAX request with fetch()
-                const response = await fetch(route, {
-                    method: 'POST',
-                    body: JSON.stringify({"message":message.value})  // FormData includes file and CSRF token
-                });
-        
-                const result = await response.json();
-        
-                if (response.ok) {
-                   console.log('response.ok',result,chat_id)
-                   document.getElementById(chat_id).insertAdjacentHTML('beforeend', '<p class="cirno">'+result.id_from +': ' +result.message+'</p>');
-                   message.value = ''
-                } else {
-                    console.log( `Error: ${result.error || 'Upload failed'}`);
-                    
-                }
-            } catch (error) {
-                console.log('Network error. Please try again.');
+    // отправка сообщения
+    async function chatSend(){
+        var input = document.getElementById('message');
+        var btn = document.getElementById('button_send_chat');
+        if (!input || !btn || !input.value.trim()) return;
+
+        var chatId = btn.dataset.chat;
+        chatShowError('');
+        btn.disabled = true;
+        try {
+            var response = await fetch('/send_message/' + chatId, {
+                method: 'POST',
+                body: JSON.stringify({"message": input.value})
+            });
+            var result = await response.json();
+
+            if (response.ok) {
+                var panel = document.getElementById('chat' + chatId);
+                var hint = panel.querySelector('.ch-hint');
+                if (hint) hint.remove();
+
+                // собираем элементы через textContent — текст сообщения не попадает в HTML
+                var wrap = document.createElement('div');
+                wrap.className = 'ch-msg ch-msg-me';
+                var who = document.createElement('span');
+                who.className = 'ch-who';
+                who.textContent = 'Вы';
+                var bubble = document.createElement('p');
+                bubble.className = 'ch-bubble';
+                bubble.textContent = result.message;
+                wrap.appendChild(who);
+                wrap.appendChild(bubble);
+                panel.appendChild(wrap);
+                panel.scrollTop = panel.scrollHeight;
+
+                input.value = '';
+                input.style.height = '';
+            } else {
+                chatShowError(result.error || 'Не удалось отправить сообщение');
             }
+        } catch (error) {
+            chatShowError('Нет соединения. Попробуйте ещё раз.');
+        } finally {
+            btn.disabled = false;
+            input.focus();
+        }
     }
 
-    if (document.readyState == 'complete') {
-        console.log('window.onload','{{chat_num}}','{{current_chat}}')
-        change_tab_v('chats','{{chat_num}}','{{current_chat}}')
-    }
-        
-      
-    
+    (function(){
+        var input = document.getElementById('message');
+        if (input){
+            // Enter — отправить, Shift+Enter — новая строка
+            input.addEventListener('keydown', function(e){
+                if (e.key === 'Enter' && !e.shiftKey){
+                    e.preventDefault();
+                    chatSend();
+                }
+            });
+            // поле растёт вместе с текстом
+            input.addEventListener('input', function(){
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 128) + 'px';
+            });
+        }
+
+        // открываем нужный чат: по id собеседника, затем по номеру, иначе первый
+        var current = '{{ current_chat|default("", true) }}';
+        var num = '{{ chat_num|default("", true) }}';
+        var index = '1';
+        var byNum = false;
+        document.querySelectorAll('#chats .ch-tab').forEach(function(tab){
+            if (current !== '' && tab.dataset.chat === current) index = tab.dataset.index;
+            if (num !== '' && tab.dataset.index === num) byNum = true;
+        });
+        var matchedCurrent = Array.prototype.some.call(
+            document.querySelectorAll('#chats .ch-tab'),
+            function(tab){ return current !== '' && tab.dataset.chat === current; }
+        );
+        if (!matchedCurrent && byNum) index = num;
+        chatOpen(index);
+
+        // клик по затемнённому фону закрывает окно (только пока в нём чат)
+        var dlg = document.querySelector('dialog');
+        if (dlg && !dlg.dataset.chBackdrop){
+            dlg.dataset.chBackdrop = '1';
+            dlg.addEventListener('click', function(e){
+                if (e.target === dlg && document.getElementById('ch-root')) closeModal();
+            });
+        }
+    })();
 </script>

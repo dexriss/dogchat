@@ -1,0 +1,90 @@
+{# Окно просмотра родословной. Открывается через showModalEdit(event)
+   по ссылке url_for('pedigree_view', pet_id=...) #}
+{% set ped = pet.pedigree %}
+{% set owner_login = pet.users.login if pet.users else '' %}
+{% set noimg = url_for('static', filename='img/ava.png') %}
+{% set pet_img = url_for('static', filename='uploads/' + owner_login + '/' + pet.image) if pet.image else noimg %}
+
+{% set ns = namespace(gens=[['f', 'm']]) %}
+{% for g in range(3) %}
+  {% set nxt = [] %}
+  {% for k in ns.gens[-1] %}
+    {% set _ = nxt.append(k ~ 'f') %}
+    {% set _ = nxt.append(k ~ 'm') %}
+  {% endfor %}
+  {% set ns.gens = ns.gens + [nxt] %}
+{% endfor %}
+{% set col_titles = ['Родители', 'Бабушки и дедушки', 'Прадеды', 'Прапрадеды'] %}
+
+<div class="pd-root" id="PedigreeModal">
+  <button type="button" class="pd-close" onclick="closeModal()" aria-label="Закрыть">&times;</button>
+  <h2 class="pd-title">Родословная</h2>
+  <p class="pd-sub">
+    {{ pet.nikname }}{% if pet.breed %} · {{ pet.breed }}{% endif %}
+    {% if ped %}<span class="pd-count">заполнено {{ ped | length }} из 30</span>{% endif %}
+  </p>
+
+  {% if not ped %}
+  <div class="pd-empty">
+    <p>Родословная пока не заполнена.</p>
+  </div>
+  {% else %}
+  <div class="pd-legend" aria-hidden="true">
+    <span class="pd-dot pd-dot-f"></span>отец
+    <span class="pd-dot pd-dot-m"></span>мать
+  </div>
+
+  <div class="pd-scroll">
+    <div class="pd-tree">
+
+      <div class="pd-col">
+        <div class="pd-colhead">Питомец</div>
+        <div class="pd-slot">
+          <div class="pd-card pd-card-self">
+            <img class="pd-ph" src="{{ pet_img }}" alt="">
+            <div class="pd-txt">
+              <span class="pd-name">{{ pet.nikname }}</span>
+              <span class="pd-breed">{{ pet.breed or '' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% for gen in ns.gens %}
+      <div class="pd-col">
+        <div class="pd-colhead">{{ col_titles[loop.index0] }}</div>
+        {% for k in gen %}
+        {% set p = ped.get(k) %}
+        <div class="pd-slot">
+          {% if p %}
+          <div class="pd-card pd-{{ k[-1] }}" title="{{ p.name or '' }}{% if p.breed %} — {{ p.breed }}{% endif %}">
+            <img class="pd-ph" src="{{ url_for('static', filename=p.photo) if p.photo else noimg }}" alt="">
+            <div class="pd-txt">
+              <span class="pd-name">{{ p.name or '—' }}</span>
+              <span class="pd-breed">{{ p.breed or '' }}</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="pd-card pd-none"><span class="pd-name">—</span></div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+  {% endif %}
+</div>
+<script>
+    // клик по затемнённому фону закрывает окно
+    (function(){
+        var dlg = document.querySelector('dialog');
+        if (dlg && !dlg.dataset.pdBackdrop){
+            dlg.dataset.pdBackdrop = '1';
+            dlg.addEventListener('click', function(e){
+                if (e.target === dlg && document.getElementById('PedigreeModal')) closeModal();
+            });
+        }
+    })();
+</script>

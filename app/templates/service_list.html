@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="ls-page">
+
+    <header class="ls-pagehead">
+        <a class="ls-back" href="{{ url_for('services') }}">&larr; Все специалисты</a>
+        <h1 class="ls-pagetitle">{{ data.service.title }}</h1>
+    </header>
+
+    {% if not data.profies %}
+    <div class="ls-empty">
+        <p>В этом разделе пока нет специалистов.</p>
+    </div>
+    {% endif %}
+
+    {% for profies in data.profies %}
+    {% set prof_img = url_for('static', filename='uploads/' + profies.login + '/' + profies.image, v=1) if profies.image else '/static/img/ava.png' %}
+    <article class="ls-card">
+        <div class="ls-media">
+            <img class="ls-img" src="{{ prof_img }}" alt="{{ profies.name }}">
+        </div>
+        <div class="ls-body">
+            <header class="ls-head">
+                <h2 class="ls-name">{{ profies.name }}</h2>
+                {% if profies.city %}<span class="ls-city">{{ profies.city }}</span>{% endif %}
+            </header>
+
+            <div class="ls-section">
+                <span class="ls-label">Описание</span>
+                <p class="ls-text">{{ profies.i_can }}</p>
+            </div>
+
+            <footer class="ls-foot">
+                {# чат открывается по id пользователя, а не по id услуги #}
+                <button type="button" class="ls-btn" onclick="showModalEdit(event)"
+                        data-whatever="{{ url_for('get_messages', id_chat = profies.user_id) }}">Написать</button>
+                <img class="ls-mascot" src="{{ url_for('static', filename='img/izbeanor.png', v=1) }}" alt="">
+            </footer>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}

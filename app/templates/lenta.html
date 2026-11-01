@@ -1,25 +1,60 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="vse">
-        {%for posts in data.lenta%}
-        <div class="kailen">
-            
-            <div class="soushin">
-                {% if posts.image %}
-                <img src="{{ url_for('static', filename='uploads/' + posts.login+'/'+posts.image, v=1)}}"/> 
-                {%else%}
-                <img src="/static/img/ava.png">
-                {%endif%}
-            </div>
-            <a class="bulochki">
-                <h2>{{posts.title}}</h2>
-                <h1>{{posts.name}}</h1>   
-                <h3>{{posts.post}}</h3>
-                           
-            </a>
-         
-            
-        </div>
-        {%endfor%}
+<div class="ls-page">
+
+    {% if not data.lenta %}
+    <div class="ls-empty">
+        <p>Статей пока нет.</p>
     </div>
+    {% endif %}
+
+    {% for posts in data.lenta %}
+    {% set post_img = url_for('static', filename='uploads/' + posts.login + '/' + posts.image, v=1) if posts.image else '/static/img/ava.png' %}
+    {# ls-card-long — карточка ленты: крупнее и выше, чем в списках волонтёров и услуг #}
+    <article class="ls-card ls-card-long">
+        <div class="ls-media">
+            <img class="ls-img" src="{{ post_img }}" alt="{{ posts.title }}">
+        </div>
+        <div class="ls-body">
+            <h2 class="ls-title">{{ posts.title }}</h2>
+            <p class="ls-author"><span class="ls-label">Автор</span> {{ posts.name }}</p>
+            <p class="ls-text ls-collapsible">{{ posts.post }}</p>
+            <button type="button" class="ls-more" aria-expanded="false" hidden>Читать полностью</button>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<script>
+    (function(){
+        var page = document.querySelector('.ls-page');
+        if (!page) return;
+        // без JS текст остаётся полностью открытым
+        page.classList.add('ls-js');
+
+        // показываем кнопку только там, где текст действительно обрезан
+        function checkOverflow(){
+            page.querySelectorAll('.ls-collapsible').forEach(function(text){
+                var btn = text.nextElementSibling;
+                if (!btn || !btn.classList.contains('ls-more')) return;
+                if (text.classList.contains('is-open')) return;
+                btn.hidden = !(text.scrollHeight > text.clientHeight + 1);
+            });
+        }
+
+        page.addEventListener('click', function(e){
+            var btn = e.target.closest('.ls-more');
+            if (!btn) return;
+            var text = btn.previousElementSibling;
+            var open = text.classList.toggle('is-open');
+            btn.textContent = open ? 'Свернуть' : 'Читать полностью';
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        checkOverflow();
+        window.addEventListener('load', checkOverflow);
+        window.addEventListener('resize', checkOverflow);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(checkOverflow);
+    })();
+</script>
 {% endblock %}

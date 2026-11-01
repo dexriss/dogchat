@@ -1,51 +1,247 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="okno2">        
-        <div class="okno1" id="okno1">
-            {% for user in data.meeting %}
-            <div>
-                <div class="kailen2">
-                    <div class = "rusame1">
-                        {% if user.image %}
-                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + user.login+'/'+user.image, v=1)}}">
-                        {%else%}
-                        <img class="soushin2" src="static/img/ava.png">
-                        {%endif%}
-                        <h1>{{user.name}}</h1>
-                        <h2 class="wowaka">{{user.age}} , {{user.city}}</h2>
-                        <h3 class="wowaka">{{user.about}}</h3>
-                    </div>
-                    <div class="rusame2">
-                        {%for pet in user.pets%}
-                        <h1>{{pet.nickname}}</h1>
-                        <h2 class="wowaka">{{pet.breed}},{{pet.age}}, 
-                            {%if pet.neutered%}
-                            стерилизован(-а)
-                            {%else%}
-                            не стерилизован(-а)
-                            {%endif%}
-                        </h2>
-                        <h3 class="wowaka">{{pet.about}}</h3>
-                        {%endfor%}                
-                    </div>
-                    <div class="pr1">
-                         
-                        <img src="static/img/like.png" onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = user.id)}}"/>
-                       
-                        <img src="static/img/unlike.png"/>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-      
-        </div>
+<div class="zn-page">
+
+    {% if not data.meeting %}
+    <div class="zn-empty">
+        <p>Пока нет анкет для знакомства. Загляните позже!</p>
     </div>
-    <script>
-        window.onload = function(){
-            const okno1 = document.getElementById("okno1")
-            document.querySelectorAll(".pr1").forEach((el,i) => el.addEventListener("click",function(){
-                okno1.style.marginLeft = (-100*(i+1))+"vw"
-            }))
+    {% else %}
+
+    {# ----- фильтры (работают, только если включён JS) ----- #}
+    <form class="zn-filters" id="znFilters" onsubmit="return false" aria-label="Фильтры анкет">
+        <label class="zn-f">
+            <span class="zn-f-label">Порода</span>
+            <select id="znBreed"><option value="">Любая</option></select>
+        </label>
+        <label class="zn-f">
+            <span class="zn-f-label">Возраст собаки</span>
+            <select id="znAge">
+                <option value="">Любой</option>
+                <option value="0-1">до 1 года</option>
+                <option value="1-3">1–3 года</option>
+                <option value="3-7">3–7 лет</option>
+                <option value="7-999">7 лет и старше</option>
+            </select>
+        </label>
+        <label class="zn-f">
+            <span class="zn-f-label">Город</span>
+            <select id="znCity"><option value="">Любой</option></select>
+        </label>
+        <button type="button" class="zn-f-reset" data-zn-reset>Сбросить</button>
+    </form>
+
+    <div class="zn-counter" aria-live="polite">Анкета 1 из {{ data.meeting | length }}</div>
+
+    {% for user in data.meeting %}
+    {% set user_img = url_for('static', filename='uploads/' + user.login + '/' + user.image, v=1) if user.image else '/static/img/ava.png' %}
+    {# породы и возраст каждой собаки - для фильтров #}
+    {% set pj = [] %}
+    {% for pet in user.pets %}{% set _ = pj.append({'b': pet.breed or '', 'a': pet.age or ''}) %}{% endfor %}
+    <article class="zn-card" data-city="{{ user.city or '' }}" data-pets='{{ pj | tojson }}'>
+
+        {# ----- фото с подписью ----- #}
+        <div class="zn-photo-wrap">
+            <img class="zn-photo" src="{{ user_img }}" alt="{{ user.name }}">
+            <div class="zn-caption">
+                <h1 class="zn-name">{{ user.name }}{% if user.age %}, <span class="zn-age">{{ user.age }}</span>{% endif %}</h1>
+                {% if user.city %}
+                <p class="zn-city">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+                    </svg>
+                    {{ user.city }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ----- информация и кнопки ----- #}
+        <div class="zn-body">
+            <div class="zn-info">
+                {% if user.about %}
+                <section class="zn-section">
+                    <h2 class="zn-heading">О себе</h2>
+                    <p class="zn-text">{{ user.about }}</p>
+                </section>
+                {% endif %}
+
+                {% if user.pets %}
+                <section class="zn-section">
+                    <h2 class="zn-heading">Питомцы</h2>
+                    {% for pet in user.pets %}
+                    <div class="zn-pet">
+                        <h3 class="zn-pet-name">{{ pet.nickname }}</h3>
+                        <div class="zn-tags">
+                            {% if pet.breed %}<span class="zn-tag">{{ pet.breed }}</span>{% endif %}
+                            {% if pet.age %}<span class="zn-tag">{{ pet.age }}</span>{% endif %}
+                            <span class="zn-tag zn-tag-accent">
+                                {% if pet.neutered %}стерилизован(-а){% else %}не стерилизован(-а){% endif %}
+                            </span>
+                        </div>
+                        {% if pet.about %}<p class="zn-text">{{ pet.about }}</p>{% endif %}
+                        {% if pet.has_pedigree %}
+                        <button type="button" class="zn-ped-btn" onclick="showModalEdit(event)"
+                                data-whatever="{{ url_for('pedigree_view', pet_id = pet.id) }}">Родословная</button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </section>
+                {% endif %}
+            </div>
+
+            <div class="zn-actions">
+                <button type="button" class="zn-act zn-pass" title="Пропустить">
+                    <img src="/static/img/unlike.png" alt="">
+                    Пропустить
+                </button>
+                <button type="button" class="zn-act zn-like" title="Написать сообщение"
+                        onclick="showModalEdit(event)"
+                        data-whatever="{{ url_for('get_messages', id_chat = user.id) }}">
+                    <img src="/static/img/like.png" alt="">
+                    Написать
+                </button>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+
+    {# показывается, когда анкеты закончились #}
+    <div class="zn-end" id="znEnd">
+        <p>Вы посмотрели все анкеты.</p>
+        <button type="button" class="zn-restart">Посмотреть сначала</button>
+    </div>
+
+    {# показывается, когда под фильтры ничего не подошло #}
+    <div class="zn-end" id="znNone">
+        <p>По выбранным фильтрам анкет нет.</p>
+        <button type="button" class="zn-restart" data-zn-reset>Сбросить фильтры</button>
+    </div>
+
+    {% endif %}
+</div>
+
+<script>
+    (function(){
+        var page = document.querySelector('.zn-page');
+        if (!page) return;
+        var cards = [].slice.call(page.querySelectorAll('.zn-card'));
+        if (!cards.length) return;
+        // без JS все анкеты просто идут списком
+        page.classList.add('zn-js');
+
+        var end = document.getElementById('znEnd');
+        var none = document.getElementById('znNone');
+        var counter = page.querySelector('.zn-counter');
+        var selBreed = document.getElementById('znBreed');
+        var selAge = document.getElementById('znAge');
+        var selCity = document.getElementById('znCity');
+        var active = cards.slice();   // анкеты, прошедшие фильтры
+        var cur = 0;
+
+        function norm(t){ return String(t || '').trim().toLowerCase(); }
+
+        // возраст из текста ("3", "2 года", "6 мес", "1 год 6 мес") в годах; нет цифр - null
+        function ageYears(txt){
+            var t = String(txt || '').toLowerCase().replace(/,/g, '.');
+            var re = /(\d+(?:\.\d+)?)\s*(лет|год|г\b|мес|нед)?/g, m, sum = 0, found = false;
+            while ((m = re.exec(t))){
+                var n = parseFloat(m[1]), u = m[2] || '';
+                if (u.indexOf('мес') === 0) n = n / 12;
+                else if (u.indexOf('нед') === 0) n = n / 52;
+                sum += n; found = true;
+            }
+            return found ? sum : null;
         }
-    </script>
+
+        // разбираем данные карточек и собираем варианты для списков
+        var breeds = {}, cities = {};
+        cards.forEach(function(card){
+            var pets = [];
+            try { pets = JSON.parse(card.dataset.pets || '[]'); } catch(e) {}
+            card._d = {
+                city: norm(card.dataset.city),
+                pets: pets.map(function(p){
+                    if (norm(p.b)) breeds[norm(p.b)] = breeds[norm(p.b)] || p.b.trim();
+                    return { b: norm(p.b), y: ageYears(p.a) };
+                })
+            };
+            if (card._d.city) cities[card._d.city] = cities[card._d.city] || card.dataset.city.trim();
+        });
+        function fill(select, map){
+            Object.keys(map).sort(function(a, b){ return map[a].localeCompare(map[b], 'ru'); })
+                .forEach(function(k){
+                    var o = document.createElement('option');
+                    o.value = k; o.textContent = map[k];
+                    select.appendChild(o);
+                });
+        }
+        fill(selBreed, breeds);
+        fill(selCity, cities);
+
+        // подходит ли анкета: город владельца и хотя бы одна собака, подходящая сразу и по породе, и по возрасту
+        function matches(card, f){
+            var d = card._d;
+            if (f.city && d.city !== f.city) return false;
+            if (!f.breed && !f.age) return true;
+            return d.pets.some(function(p){
+                if (f.breed && p.b !== f.breed) return false;
+                if (f.age && (p.y === null || p.y < f.min || p.y >= f.max)) return false;
+                return true;
+            });
+        }
+
+        function show(i){
+            cur = i;
+            var finished = active.length > 0 && i >= active.length;
+            cards.forEach(function(card){
+                card.classList.toggle('is-active', active[i] === card);
+            });
+            end.classList.toggle('is-active', finished);
+            none.classList.toggle('is-active', active.length === 0);
+            counter.textContent = active.length === 0
+                ? 'Анкет не найдено'
+                : finished
+                    ? 'Анкеты закончились'
+                    : 'Анкета ' + (i + 1) + ' из ' + active.length;
+        }
+
+        function applyFilters(){
+            var range = selAge.value ? selAge.value.split('-') : null;
+            var f = {
+                breed: selBreed.value,
+                city: selCity.value,
+                age: !!range,
+                min: range ? parseFloat(range[0]) : 0,
+                max: range ? parseFloat(range[1]) : 0
+            };
+            [selBreed, selAge, selCity].forEach(function(s){
+                s.classList.toggle('is-set', !!s.value);
+            });
+            active = cards.filter(function(c){ return matches(c, f); });
+            show(0);
+        }
+
+        function resetFilters(){
+            selBreed.value = selAge.value = selCity.value = '';
+            applyFilters();
+        }
+
+        [selBreed, selAge, selCity].forEach(function(s){
+            s.addEventListener('change', applyFilters);
+        });
+
+        page.addEventListener('click', function(e){
+            if (e.target.closest('[data-zn-reset]')) {
+                resetFilters();
+            } else if (e.target.closest('.zn-act')) {
+                show(cur + 1);
+            } else if (e.target.closest('.zn-restart')) {
+                show(0);
+            }
+        });
+
+        applyFilters();
+    })();
+</script>
 {% endblock %}

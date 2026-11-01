@@ -1,36 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="vse">
-        {% for profies in data.profies %}
-        <div class="kailen39">
-            
-           
+<div class="ls-page">
 
-                <div class="soushin1">
-                    {% if profies.image %}
-                        <img class="soushin2" src="{{ url_for('static', filename='uploads/' + profies.login+'/'+profies.image, v=1)}}">
-                    {%else%}
-                        <img class="soushin2" src="/static/img/ava.png">
-                    {%endif%}
-                    
-            
-                </div>
-                
-                <div class="rusame">
-                    <h1 >{{profies.name}}</h1>
-                    <h2>{{profies.why_i}}</h2>
-                    <h2>{{profies.city}}</h2>
-                    <h3>{{profies.i_can}}</h3>                          
-                    </div>
-                    <div class="pr">
-                        <button class="hiyojun"  onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = profies.id)}}">Написать</button>
-                        
-                    <a class="akitoya">
-                        <img src="{{ url_for( 'static', filename='img/izbeanor.png', v=1)}}"/>
-                    </a>
-                </div>
-            
-        </div>
-        {%endfor%}
+    {% if not data.profies %}
+    <div class="ls-empty">
+        <p>Услуг пока нет.</p>
     </div>
+    {% endif %}
+
+    {% for profies in data.profies %}
+    {% set prof_img = url_for('static', filename='uploads/' + profies.login + '/' + profies.image, v=1) if profies.image else '/static/img/ava.png' %}
+    <article class="ls-card">
+        <div class="ls-media">
+            <img class="ls-img" src="{{ prof_img }}" alt="{{ profies.name }}">
+        </div>
+        <div class="ls-body">
+            <header class="ls-head">
+                <h2 class="ls-name">{{ profies.name }}</h2>
+                {% if profies.city %}<span class="ls-city">{{ profies.city }}</span>{% endif %}
+            </header>
+
+            <div class="ls-section">
+                <span class="ls-label">Услуга</span>
+                <p class="ls-subtitle">{{ profies.why_i }}</p>
+            </div>
+            <div class="ls-section">
+                <span class="ls-label">Описание</span>
+                <p class="ls-text">{{ profies.i_can }}</p>
+            </div>
+
+            <footer class="ls-foot">
+                <button type="button" class="ls-btn" onclick="showModalEdit(event)"
+                        data-whatever="{{ url_for('get_messages', id_chat = profies.id) }}">Написать</button>
+                <img class="ls-mascot" src="{{ url_for('static', filename='img/izbeanor.png', v=1) }}" alt="">
+            </footer>
+        </div>
+    </article>
+    {% endfor %}
+</div>
 {% endblock %}

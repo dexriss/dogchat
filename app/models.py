@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime , Date,Text
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime , Date,Text, UniqueConstraint
 # для определения таблицы и модели
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import func
@@ -54,6 +54,14 @@ class Pets(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     users = relationship("Users", back_populates="pets")
+    pedigree_items = relationship("Pedigree", back_populates="pet",cascade="all, delete-orphan", passive_deletes=True)
+
+    @property
+    def pedigree(self):
+        return {
+            p.position: {'name': p.name, 'breed': p.breed, 'photo': p.image}
+            for p in self.pedigree_items
+        }
 
 class Posts(Base):
     __tablename__ = 'posts'
@@ -96,6 +104,19 @@ class Chat(Base):
     created_at =  Column(DateTime, default=func.now())
     delivered_at = Column(DateTime)
 
+class Pedigree(Base):
+    __tablename__ = 'pedigree'
+    __table_args__ = (UniqueConstraint('pet_id', 'position', name='uq_pedigree_pet_position'),)
+    id = Column(Integer, primary_key=True)
+    pet_id = Column(Integer, ForeignKey("pets.id", ondelete="CASCADE"), nullable=False, index=True)
+    position = Column(String(4), nullable=False)   # 'f', 'm', 'fm', 'mff' ...
+    name = Column(String(250))
+    breed = Column(String(250))
+    image = Column(Text)                           # путь внутри static/
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    pet = relationship("Pets", back_populates="pedigree_items")
+
 # class Images(Base):
 #     __tablename__ = 'images'
 #     id = Column(Integer, primary_key=True)
@@ -107,6 +128,6 @@ class Chat(Base):
 #     users = relationship("Users", back_populates="profies")
 
 # создает экземпляр create_engine в конце файла
-#engine = create_engine('sqlite:///database.db')
+engine = create_engine('sqlite:///database.db')
 print('success maybe')
-#Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)

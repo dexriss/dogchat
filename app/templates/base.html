@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width= initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{data.title}}</title>
    {# <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -12,36 +12,44 @@
 </head>
 <body>
 
-    <nav class="navi" id="nav">
-        <a class="shuake" href="/">
-            <img class="maoritsu" src="/static/img/logo.png"/>
-            <p class="text">Sobachat</p>
-        </a>
-        
-        <div class="links">
-            <a class="shumika"href="/volunteer">Волонтёры</a>
-            <a class="shumika" href="/meetings">Знакомства</a>
-            <a class="shumika" href="/services">Услуги</a>
-            <a class="shumika"href="/lenta">Лента</a>
-        </div>
-        <div class="profile">
-            
-            <a class="ava" href="#">
-                {#<img class="maoritsu" src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+data.userdata.image, v=1)}}"/>#}
-                <img class="maoritsu"src="/static/img/ava.png"/>
+    {# ===== Шапка сайта ===== #}
+    <header class="hd" id="nav">
+        <div class="hd-inner">
+
+            <a class="hd-logo" href="/" aria-label="На главную">
+                <img src="/static/img/logo2.png" alt="Логотип">
             </a>
+
+            <nav class="hd-links" id="hd-links" aria-label="Основное меню">
+                <a class="hd-link{% if request.path.startswith('/volunteer') %} is-active{% endif %}" href="/volunteer">Волонтёры</a>
+                <a class="hd-link{% if request.path.startswith('/meetings') %} is-active{% endif %}" href="/meetings">Знакомства</a>
+                <a class="hd-link{% if request.path.startswith('/services') %} is-active{% endif %}" href="/services">Услуги</a>
+                <a class="hd-link{% if request.path.startswith('/lenta') %} is-active{% endif %}" href="/lenta">Лента</a>
+            </nav>
+
+            <div class="hd-profile">
+                <button type="button" class="hd-user" aria-haspopup="true" aria-expanded="false" aria-controls="profile-menu" aria-label="Меню профиля">
+                    {#<img class="hd-avatar" src="{{ url_for('static', filename='uploads/' + data.userdata.login+'/'+data.userdata.image, v=1)}}" alt="">#}
+                    <img class="hd-avatar" src="/static/img/ava.png" alt="">
+                </button>
+                <div class="hd-menu" id="profile-menu">
+                    <a href="/profile">Профиль</a>
+                    <a href="/logout">Выход</a>
+                </div>
+            </div>
+
+            <button type="button" class="hd-burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="hd-links">
+                <span></span><span></span><span></span>
+            </button>
+
         </div>
-        <div class="modalka" id="modal">
-            <a href="/profile">Профиль</a>
-            <a href="/logout">Выход</a>
-        </div>
-    </nav>
+    </header>
 
     {% block content %}{% endblock %}
-    
-    <button class="chat_button" onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = data.current_user_id)}}">
-        <img class="backdraft" src="/static/img/chat.png"/>
-        chat
+
+    <button type="button" class="hd-chat" onclick="showModalEdit(event)" data-whatever="{{url_for('get_messages',id_chat = data.current_user_id)}}">
+        <img class="hd-chat-icon" src="/static/img/chat.png" alt="">
+        Чат
     </button>
     <dialog style="padding: 0">
         <div id="modal-box" style="padding: 1rem">
@@ -114,16 +122,48 @@
         isModalOpen = false
   }
   const modal = document.querySelector('dialog')
-  function showModalprof(){
-    const modal = document.getElementById('modal')
-    document.querySelector('.ava').addEventListener('click', () => {
-        
-        modal.Classlist.add('open')
-    })
+</script>
 
-  }
+<script>
+    // Шапка: меню профиля и мобильное меню
+    (function(){
+        var header  = document.getElementById('nav');
+        var burger  = header.querySelector('.hd-burger');
+        var userBtn = header.querySelector('.hd-user');
+        var menu    = document.getElementById('profile-menu');
 
+        function closeProfile(){
+            menu.classList.remove('is-open');
+            userBtn.setAttribute('aria-expanded', 'false');
+        }
+        function closeBurger(){
+            header.classList.remove('is-open');
+            burger.setAttribute('aria-expanded', 'false');
+        }
 
+        burger.addEventListener('click', function(){
+            var open = header.classList.toggle('is-open');
+            burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        userBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            var open = menu.classList.toggle('is-open');
+            userBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        // клик вне меню профиля закрывает его
+        document.addEventListener('click', function(e){
+            if (!menu.contains(e.target)) closeProfile();
+        });
+
+        document.addEventListener('keydown', function(e){
+            if (e.key === 'Escape'){
+                closeProfile();
+                closeBurger();
+            }
+        });
+    })();
 </script>
 </body>
 </html>

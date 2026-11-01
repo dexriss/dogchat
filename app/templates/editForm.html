@@ -1,108 +1,304 @@
-<form id="ModalForm" action="{{ url_for('editItem', id = edit_val.id , type = type)}}" method="post">
-  <div class="form-group">
+{% set titles = {
+    'user': 'Редактирование профиля',
+    'pets': 'Питомец',
+    'volonteer': 'Анкета волонтёра',
+    'profies': 'Услуга',
+    'posts': 'Пост'
+} %}
+{% set breeds = [
+  'Немецкая овчарка',
+  'Йоркширский терьер',
+  'Чихуахуа',
+  'Такса',
+  'Лабрадор-ретривер',
+  'Шпиц',
+  'Мопс',
+  'Французский бульдог',
+  'Вельш-корги',
+  'Той-терьер'
+] %}
+<form id="ModalForm" class="ef-form{% if type == 'pets' %} ef-form--pets{% endif %}" action="{{ url_for('editItem', id = edit_val.id , type = type)}}" method="post" enctype="multipart/form-data">
+
+  <button type="button" class="ef-close" onclick="closeModal()" aria-label="Закрыть">&times;</button>
+  <h2 class="ef-title">{{ titles.get(type, 'Редактирование') }}</h2>
+
+  <div class="ef-grid">
+
     {% if type == 'user' %}
-      <div class="group-vod">
-        <label for="name">Имя:</label>
-        <input class="vod" type="text" maxlength="100" name="name" placeholder="имя" value="{{edit_val.name or ''}}">
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-name">Имя</label>
+        <input class="ef-input" id="ef-name" type="text" maxlength="100" name="name" placeholder="Имя" value="{{edit_val.name or ''}}">
       </div>
 
-      <div class="group-vod">
-        <label for="phone">Телефон:</label>
-        <input class="vod" maxlength="100" name="phone" placeholder="телефон" value="{{edit_val.phone or ''}}">
+      <div class="ef-field">
+        <label class="ef-label" for="ef-phone">Телефон</label>
+        <input class="ef-input" id="ef-phone" maxlength="100" name="phone" placeholder="Телефон" value="{{edit_val.phone or ''}}">
       </div>
 
-      <div class="group-vod">
-        <label for="city">Город:</label>
-        <input class="vod" maxlength="100" name="city" placeholder="город" value="{{edit_val.city or ''}}">
+      <div class="ef-field">
+        <label class="ef-label" for="ef-city">Город</label>
+        <input class="ef-input" id="ef-city" maxlength="100" name="city" placeholder="Город" value="{{edit_val.city or ''}}">
       </div>
 
-      <div class="group-vod">
-          <label for="birth">Дата рождения:</label>
-          <input class="vod" maxlength="100" type="date" name="birth" placeholder="Дата рождения" value="{{edit_val.birth or ''}}">
+      <div class="ef-field">
+        <label class="ef-label" for="ef-birth">Дата рождения</label>
+        <input class="ef-input" id="ef-birth" maxlength="100" type="date" name="birth" placeholder="Дата рождения" value="{{edit_val.birth or ''}}">
       </div>
 
-      <div class="group-vod">
-          <label for="about">О себе:</label>
-          <textarea  rows="3" name="about" placeholder="О себе" class = "area"  >{{edit_val.about or ''}}</textarea>
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-about">О себе</label>
+        <textarea class="ef-input" id="ef-about" rows="4" name="about" placeholder="Расскажите о себе">{{edit_val.about or ''}}</textarea>
       </div>
-
-
-
-
-
-      
-
-       
     {% endif %}
 
-    {% if type == 'pets'%}
-      <div class="group-vod">
-        <label for="nikname">Кличка:</label>
-        <input class="vod" type="text" maxlength="100" name="nikname" placeholder="Кличка" value="{{edit_val.nikname or ''}}">
+    {% if type == 'pets' %}
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-nikname">Кличка</label>
+        <input class="ef-input" id="ef-nikname" type="text" maxlength="100" name="nikname" placeholder="Кличка" value="{{edit_val.nikname or ''}}">
       </div>
       <div class="group-vod">
         <label for="breed">порода:</label>
-        <input class="vod" maxlength="100" name="breed" placeholder="порода" value="{{edit_val.breed or ''}}">
+        <select class="vod" name="breed" id="breed">
+          <option value="">— выберите породу —</option>
+          <option value="Беспородная" {% if edit_val.breed == 'Беспородная' %}selected{% endif %}>Беспородная (метис)</option>
+
+          {% for b in breeds %}
+            <option value="{{ b }}" {% if edit_val.breed == b %}selected{% endif %}>{{ b }}</option>
+          {% endfor %}
+
+          {# порода из базы, которой нет в списке, не потеряется при сохранении #}
+          {% if edit_val.breed and edit_val.breed not in breeds + ['Беспородная'] %}
+            <option value="{{ edit_val.breed }}" selected>{{ edit_val.breed }}</option>
+          {% endif %}
+        </select>
       </div>
+
       <div class="group-vod">
-        <label for="gender">пол:</label>
-        <input class="vod" maxlength="100" name="gender" placeholder="пол" value="{{edit_val.gender or ''}}">
+        <label>пол:</label>
+        <div class="gender-choice">
+          <label>
+            <input type="radio" name="gender" value="женский"
+              {% if edit_val.gender == 'женский' %} checked {% endif %}>
+            женский
+          </label>
+          <label>
+            <input type="radio" name="gender" value="мужской"
+              {% if edit_val.gender == 'мужской' %} checked {% endif %}>
+            мужской
+          </label>
+        </div>
       </div>
-      <div class="galochka">
-        <label for="neutered">стирилизован:</label>
-        <input id="neutered_bool" type="checkbox"  placeholder="стирилизован" 
-        {% if edit_val.neutered == 1  %} checked {% endif %} >
+
+      <div class="ef-field">
+        <label class="ef-label" for="ef-age">Возраст</label>
+        <input class="ef-input" id="ef-age" maxlength="100" name="age" placeholder="Возраст" value="{{edit_val.age or ''}}">
+      </div>
+
+      <div class="ef-field">
+        <span class="ef-label">Стерилизован(-а)</span>
+        <label class="ef-switch" title="Стерилизован(-а)">
+          <input id="neutered_bool" type="checkbox" {% if edit_val.neutered == 1 %} checked {% endif %}>
+          <span class="ef-slider"></span>
+        </label>
         <input id="neutered_hidden" hidden name="neutered" value="{{edit_val.neutered or 'False'}}">
       </div>
-      <div class="group-vod">
-        <label for="age">возраст:</label>
-        <input class="vod" maxlength="100"  name="age" placeholder="возраст" value="{{edit_val.age or ''}}">
+
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-pet-about">Характер</label>
+        <textarea class="ef-input" id="ef-pet-about" rows="4" name="about" placeholder="Характер питомца">{{edit_val.about or ''}}</textarea>
       </div>
-      <div class="group-vod">
-        <label for="about">характер:</label>
-        <textarea class="vod" rows="3" name="about" placeholder="характер" value="" >{{edit_val.about or ''}}</textarea>
+
+      {# ===== Родословная: 4 поколения предков =====
+         Ключ ячейки — путь от питомца: f = отец, m = мать.
+         f — отец, fm — мать отца, fmf — отец матери отца и т.д. #}
+      {% set ped = edit_val.pedigree if edit_val.pedigree is mapping else {} %}
+      {% set ns = namespace(gens=[['f', 'm']]) %}
+      {% for g in range(3) %}
+        {% set nxt = [] %}
+        {% for k in ns.gens[-1] %}
+          {% set _ = nxt.append(k ~ 'f') %}
+          {% set _ = nxt.append(k ~ 'm') %}
+        {% endfor %}
+        {% set ns.gens = ns.gens + [nxt] %}
+      {% endfor %}
+      {% set gen_titles = ['Родители', 'Бабушки и дедушки', 'Прабабушки и прадедушки', 'Прапрабабушки и прапрадедушки'] %}
+
+      <datalist id="ef-breeds">
+        <option value="Беспородная"></option>
+        {% for b in breeds %}<option value="{{ b }}"></option>{% endfor %}
+      </datalist>
+
+      <section class="ef-field ef-wide ef-ped" aria-labelledby="ef-ped-title">
+        <h3 class="ef-ped-title" id="ef-ped-title">Родословная</h3>
+        <p class="ef-ped-hint">Необязательно: заполняйте только тех предков, о которых знаете. До 4 поколений.</p>
+
+        {% for gen in ns.gens %}
+        <details class="ef-ped-gen"{% if loop.first %} open{% endif %}>
+          <summary>
+            <span>{{ gen_titles[loop.index0] }}</span>
+            <span class="ef-ped-count" data-count-for="{{ loop.index }}">0 / {{ gen | length }}</span>
+          </summary>
+          <div class="ef-ped-cards">
+            {% for k in gen %}
+            {% set p = ped.get(k) or {} %}
+            <div class="ef-ped-card" data-gen="{{ loop.index }}">
+              <span class="ef-ped-role">{% for c in (k | reverse) %}{% if loop.first %}{{ 'Отец' if c == 'f' else 'Мать' }}{% else %}{{ ' отца' if c == 'f' else ' матери' }}{% endif %}{% endfor %}</span>
+              <div class="ef-ped-row">
+                <label class="ef-ped-photo" title="Добавить или сменить фото">
+                  <img class="ef-ped-img" alt=""{% if p.photo %} src="{{ url_for('static', filename=p.photo) }}"{% else %} hidden{% endif %}>
+                  <svg class="ef-ped-ph" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"{% if p.photo %} hidden{% endif %} aria-hidden="true">
+                    <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                    <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/>
+                  </svg>
+                  <input class="ef-ped-file" type="file" accept="image/*" name="ped_photo_{{ k }}" aria-label="Фото: {{ k }}">
+                </label>
+                <div class="ef-ped-fields">
+                  <input class="ef-input ef-ped-name" type="text" maxlength="100" name="ped_name_{{ k }}" placeholder="Кличка" value="{{ p.name or '' }}">
+                  <input class="ef-input ef-ped-breed" type="text" maxlength="100" name="ped_breed_{{ k }}" list="ef-breeds" placeholder="Порода" value="{{ p.breed or '' }}">
+                </div>
+                <button type="button" class="ef-ped-clear" title="Очистить" aria-label="Очистить"{% if not (p.name or p.breed or p.photo) %} hidden{% endif %}>&times;</button>
+              </div>
+              <input type="hidden" class="ef-ped-del" name="ped_delphoto_{{ k }}" value="0">
+            </div>
+            {% endfor %}
+          </div>
+        </details>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    {% if type == 'volonteer' %}
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-why">Почему я</label>
+        <textarea class="ef-input" id="ef-why" rows="4" name="why_i" placeholder="Почему вы хотите помогать">{{edit_val.why_i or ''}}</textarea>
+      </div>
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-can">Что я могу</label>
+        <textarea class="ef-input" id="ef-can" rows="4" name="i_can" placeholder="Чем вы можете помочь">{{edit_val.i_can or ''}}</textarea>
       </div>
     {% endif %}
-    {% if type == 'volonteer'%}
-      <div class="group-vod">
-        <label for="why_i">Почему я:</label>
-        <textarea class="vod" rows="3" name="why_i" placeholder="Почему я" value="" >{{edit_val.why_i or ''}}</textarea>
+
+    {% if type == 'profies' %}
+      {# тип услуги: список service_types приходит из Flask (SERVICES в __init__.py) #}
+      <div class="group-vod ef-wide">
+        <label for="ef-service-title">услуга:</label>
+        <select class="vod" name="why_i" id="ef-service-title" required>
+          <option value="">— выберите услугу —</option>
+          {% for s in service_types %}
+            <option value="{{ s.title }}" {% if edit_val.why_i == s.title %}selected{% endif %}>{{ s.title }}</option>
+          {% endfor %}
+
+          {# старое значение, которого нет в списке, не потеряется при сохранении #}
+          {% if edit_val.why_i and edit_val.why_i not in (service_types | map(attribute='title') | list) %}
+            <option value="{{ edit_val.why_i }}" selected>{{ edit_val.why_i }}</option>
+          {% endif %}
+        </select>
       </div>
-      <div class="group-vod">
-        <label for="i_can">Что я могу:</label>
-        <textarea class="vod" rows="3" name="i_can" placeholder="Что я могу" value="" >{{edit_val.i_can or ''}}</textarea>
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-service-desc">Описание</label>
+        <textarea class="ef-input" id="ef-service-desc" rows="4" name="i_can" placeholder="Описание услуги">{{edit_val.i_can or ''}}</textarea>
       </div>
     {% endif %}
-    {% if type == 'profies'%}
-    <div class="group-vod">
-      <label for="why_i">Название:</label>
-      <textarea class="vod" rows="3" name="why_i" placeholder="Название:" value="" >{{edit_val.why_i or ''}}</textarea>
-    </div>
-    <div class="group-vod">
-      <label for="i_can">Описание</label>
-      <textarea class="vod" rows="3" name="i_can" placeholder="Описание" value="" >{{edit_val.i_can or ''}}</textarea>
-    </div>
+
+    {% if type == 'posts' %}
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-post-title">Заголовок</label>
+        <textarea class="ef-input" id="ef-post-title" rows="2" name="title" placeholder="Заголовок">{{edit_val.title or ''}}</textarea>
+      </div>
+      <div class="ef-field ef-wide">
+        <label class="ef-label" for="ef-post-text">Текст</label>
+        <textarea class="ef-input" id="ef-post-text" rows="5" name="post" placeholder="Текст поста">{{edit_val.post or ''}}</textarea>
+      </div>
     {% endif %}
-    {% if type == 'posts'%}
-    <div class="group-vod">
-      <label for="title">Заголовок:</label>
-      <textarea class="vod" rows="3" name="title" placeholder="Заголовок" value="" >{{edit_val.title or ''}}</textarea>
-    </div>
-    <div class="group-vod">
-      <label for="post">Текст:</label>
-      <textarea class="vod" rows="3" name="post" placeholder="Заголовок" value="" >{{edit_val.post or ''}}</textarea>
-    </div>
-    {% endif %}
+
   </div>
-  <div class="modal-footer">
-        <button type="button" onclick="closeModal()" class="btn btn-default">Отмена</button>
-        <button id="submit" type="submit" class="btn btn-success">Сохранить</button>
+
+  <div class="ef-footer">
+    <button type="button" onclick="closeModal()" class="ef-btn ef-btn-ghost">Отмена</button>
+    <button id="submit" type="submit" class="ef-btn ef-btn-primary">Сохранить</button>
   </div>
 </form>
 <script>
-    // const neutered_bool = document.getElementById('neutered_bool')
-    $('#neutered_bool').bind('change',(e)=>{
-       (e.target.checked)?$('#neutered_hidden').val('True'):$('#neutered_hidden').val('False')})
-    
-</script>
+    $('#neutered_bool').on('change', function(e){
+        $('#neutered_hidden').val(e.target.checked ? 'True' : 'False');
+    });
 
+    // ===== родословная =====
+    (function(){
+        var root = document.querySelector('.ef-ped');
+        if (!root) return;
+        var MAX_MB = 5;
+
+        function isFilled(card){
+            return card.querySelector('.ef-ped-name').value.trim() ||
+                   card.querySelector('.ef-ped-breed').value.trim() ||
+                   (!card.querySelector('.ef-ped-img').hidden);
+        }
+        function refresh(card){
+            var clear = card.querySelector('.ef-ped-clear');
+            clear.hidden = !isFilled(card);
+            card.classList.toggle('is-filled', !!isFilled(card));
+            var gen = card.dataset.gen;
+            var cards = root.querySelectorAll('.ef-ped-card[data-gen="' + gen + '"]');
+            var n = 0;
+            cards.forEach(function(c){ if (isFilled(c)) n++; });
+            root.querySelector('[data-count-for="' + gen + '"]').textContent = n + ' / ' + cards.length;
+        }
+        function setPhoto(card, src){
+            var img = card.querySelector('.ef-ped-img');
+            var ph = card.querySelector('.ef-ped-ph');
+            if (src){ img.src = src; img.hidden = false; ph.hidden = true; }
+            else { img.removeAttribute('src'); img.hidden = true; ph.hidden = false; }
+        }
+
+        root.querySelectorAll('.ef-ped-card').forEach(function(card){
+            refresh(card);
+
+            card.querySelector('.ef-ped-file').addEventListener('change', function(e){
+                var f = e.target.files[0];
+                if (!f) return;
+                if (f.size > MAX_MB * 1024 * 1024){
+                    alert('Файл больше ' + MAX_MB + ' МБ — выберите фото поменьше.');
+                    e.target.value = '';
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(){
+                    setPhoto(card, reader.result);
+                    card.querySelector('.ef-ped-del').value = '0';
+                    refresh(card);
+                };
+                reader.readAsDataURL(f);
+            });
+
+            card.querySelectorAll('.ef-ped-name, .ef-ped-breed').forEach(function(inp){
+                inp.addEventListener('input', function(){ refresh(card); });
+            });
+
+            card.querySelector('.ef-ped-clear').addEventListener('click', function(){
+                card.querySelector('.ef-ped-name').value = '';
+                card.querySelector('.ef-ped-breed').value = '';
+                card.querySelector('.ef-ped-file').value = '';
+                card.querySelector('.ef-ped-del').value = '1'; // сервер удалит старое фото
+                setPhoto(card, null);
+                refresh(card);
+            });
+        });
+
+        // открыть поколения, в которых уже есть данные
+        root.querySelectorAll('details.ef-ped-gen').forEach(function(d){
+            if (d.querySelector('.ef-ped-card.is-filled')) d.open = true;
+        });
+    })();
+
+    // клик по затемнённому фону закрывает окно (только пока в нём эта форма)
+    (function(){
+        var dlg = document.querySelector('dialog');
+        if (dlg && !dlg.dataset.efBackdrop){
+            dlg.dataset.efBackdrop = '1';
+            dlg.addEventListener('click', function(e){
+                if (e.target === dlg && document.getElementById('ModalForm')) closeModal();
+            });
+        }
+    })();
+</script>
